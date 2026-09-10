@@ -4,3 +4,6 @@ version = "0.1.0"
 edition = "2024"
 
 [dependencies]
+flexpdf = "0.1.6"
+quick-xml = { version = "0.37", features = ["serialize"]}
+serde = { version = "1", features = ["derive"]}
