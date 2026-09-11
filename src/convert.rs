@@ -6,6 +6,9 @@ pub struct Finvoice {
     #[serde(rename = "SellerPartyDetails")]
     pub seller: SellerPartyDetails,
 
+    #[serde(rename = "SellerInformationDetails")]
+    pub sellerinfo: SellerInformationDetails,
+
     #[serde(rename = "BuyerPartyDetails")]
     pub buyer: BuyerPartyDetails,
 
@@ -23,13 +26,69 @@ pub struct Finvoice {
 pub struct SellerPartyDetails {
     #[serde(rename = "SellerOrganisationName")]
     pub name: String,
+
+    #[serde(rename = "SellerPartyIdentifier")]
+    pub identifier: String,
+
+    #[serde(rename = "SellerPostalAddressDetails")]
+    pub address: SellerPostalAddressDetails,
+}
+
+#[derive(Debug, Deserialize)]
+pub struct SellerInformationDetails {
+    #[serde(rename = "SellerAccountDetails")]
+    pub account: SellerAccountDetails,
+}
+
+#[derive(Debug, Deserialize)]
+pub struct SellerAccountDetails {
+    #[serde(rename = "SellerAccountID")]
+    pub account_id: String,
+
+    #[serde(rename = "SellerBic")]
+    pub bic: String,
+
+}
+
+#[derive(Debug, Deserialize)]
+pub struct SellerPostalAddressDetails {
+    #[serde(rename = "SellerStreetName")]
+    pub streetname: String,
+
+    #[serde(rename = "SellerTownName")]
+    pub townname: String,
+
+    #[serde(rename = "SellerPostCodeIdentifier")]
+    pub postcode: String,
+
+    #[serde(rename = "CountryName")]
+    pub country: String,
 }
 
 #[derive(Debug, Deserialize)]
 pub struct BuyerPartyDetails {
     #[serde(rename = "BuyerOrganisationName")]
     pub name: String,
+
+    #[serde(rename = "BuyerPostalAddressDetails")]
+    pub address: BuyerPostalAddressDetails,
 }
+
+#[derive(Debug, Deserialize)]
+pub struct BuyerPostalAddressDetails {
+    #[serde(rename = "BuyerStreetName")]
+    pub streetname: String,
+
+    #[serde(rename = "BuyerTownName")]
+    pub townname: String,
+
+    #[serde(rename = "BuyerPostCodeIdentifier")]
+    pub postcode: String,
+
+    #[serde(rename = "CountryName")]
+    pub country: String,
+}
+
 
 #[derive(Debug, Deserialize)]
 pub struct InvoiceDetails {
@@ -68,13 +127,22 @@ pub struct InvoiceRow {
 pub struct EpiDetails {
     #[serde(rename = "EpiPaymentInstructionDetails")]
     pub instruction: PaymentInstruction,
+
+    #[serde(rename = "EpiIdentificationDetails")]
+    pub identification: EpiIdentificationDetails,
+}
+
+#[derive(Debug, Deserialize)]
+pub struct EpiIdentificationDetails {
+    #[serde(rename = "EpiDate")]
+    pub date: String,
+
+    #[serde(rename = "EpiReference")]
+    pub reference: String,
 }
 
 #[derive(Debug, Deserialize)]
 pub struct PaymentInstruction {
-    #[serde(rename = "EpiReference")]
-    pub reference: Option<String>,
-
     #[serde(rename = "EpiInstructedAmount")]
     pub amount: String,
 

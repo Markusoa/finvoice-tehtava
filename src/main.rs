@@ -3,10 +3,19 @@ mod convert;
 use convert::Finvoice;
 use flexpdf::builder::{document, text, view};
 use flexpdf::{render_document, PageSize, Style};
+use chrono::NaiveDate;
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     let xml = std::fs::read_to_string("finvoice_testi_2_01.xml")?;
     let finvoice: Finvoice = quick_xml::de::from_str(&xml)?;
+
+    fn format_date(ccyymmdd: &str) -> String {
+        if let Ok(date) = NaiveDate::parse_from_str(ccyymmdd, "%Y%m%d") {
+            date.format("%-d.%-m.%Y").to_string()
+        } else {
+            ccyymmdd.to_string() 
+        }
+    }
 
     let doc = document()
         .title("Test invoice")
@@ -18,10 +27,44 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                         ..Style::default()
                     })
                     .children([
-                        text("INVOICE"),
-                        text(format!("Invoice number: {}", finvoice.invoice.number)),
-                        text(format!("Total: {} EUR", finvoice.invoice.total)),
-                        text(format!("Due date: {}", finvoice.payment.instruction.due_date)),
+                        text("LASKU").style(Style {
+                            font_size: Some(22.0),
+                            ..Style::default()
+                        }),
+                        text("\n"),
+                        text(format!("Myyjä:")).style(Style {
+                            font_size: Some(16.0),
+                            ..Style::default()
+                        }),
+                        text(format!("{}", finvoice.seller.name)),
+                        text(format!("{}", finvoice.seller.address.streetname)),
+                        text(format!("{}  {}  {}", finvoice.seller.address.postcode,
+                        finvoice.seller.address.townname, 
+                        finvoice.seller.address.country)),
+                        text(format!("Y-tunnus: {}", finvoice.seller.identifier)),
+                        text("\n"),
+                        text(format!("Ostaja")).style(Style {
+                            font_size: Some(16.0),
+                            ..Style::default() 
+                        }),
+                        text(format!("{}", finvoice.buyer.name)),
+                        text(format!("{}", finvoice.buyer.address.streetname)),
+                        text(format!("{}  {}  {}", finvoice.buyer.address.postcode,
+                        finvoice.buyer.address.townname,
+                        finvoice.buyer.address.country)),
+                        text("\n"),
+                        text("Maksutiedot:").style(Style {
+                            font_size: Some(16.0),
+                            ..Style::default()
+                        }),
+                        text(format!("{}", finvoice.seller.name)),
+                        text(format!("IBAN:   {}", finvoice.sellerinfo.account.account_id)),
+                        text(format!("BIC:   {}", finvoice.sellerinfo.account.bic)),
+                        text(format!("laskunumero:   {}", finvoice.invoice.number)),
+                        text(format!("Viitenumero:   {}", finvoice.payment.identification.reference)),
+                        text(format!("Päiväys:   {}", format_date(&finvoice.payment.identification.date))),
+                        text(format!("Eräpäivä:   {}", format_date(&finvoice.payment.instruction.due_date))),
+                        text(format!("Summa:   {}", finvoice.invoice.total)),
                     ]),
             )
         })
