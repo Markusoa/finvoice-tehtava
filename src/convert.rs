@@ -110,17 +110,33 @@ pub struct InvoiceDetails {
 
 #[derive(Debug, Deserialize)]
 pub struct InvoiceRow {
+
     #[serde(rename = "ArticleName")]
     pub name: String,
 
     #[serde(rename = "InvoicedQuantity")]
-    pub quantity: String,
+    pub quantity: Quantity,
 
     #[serde(rename = "UnitPriceAmount")]
     pub unit_price: String,
 
+    #[serde(rename = "RowVatRatePercent")]
+    pub vat_rate: String,
+
+    #[serde(rename = "RowVatAmount")]
+    pub vat_amount: String,
+
     #[serde(rename = "RowAmount")]
     pub amount: String,
+}
+
+#[derive(Debug, Deserialize)]
+pub struct Quantity {
+    #[serde(rename = "$value")]
+    pub value: String,
+
+    #[serde(rename = "@QuantityUnitCode")]
+    pub unit: String,
 }
 
 #[derive(Debug, Deserialize)]

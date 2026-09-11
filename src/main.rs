@@ -17,6 +17,27 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         }
     }
 
+    let rows: Vec<_> = finvoice
+        .rows
+        .iter()
+        .map(|row| {
+            text(format!(
+                "{:<18}             {:<12}        {:<12}       {:<12}      {:<8}       {:<12}    {:<12}",
+                row.name,          
+                row.quantity.value,
+                row.quantity.unit,     
+                row.unit_price,       
+                row.vat_rate,      
+                row.vat_amount,    
+                row.amount         
+            )).style(Style {
+                font_size: Some(12.0),
+                padding_bottom: Some(25.0),
+                ..Style::default()
+            })
+        })
+        .collect();
+
     let doc = document()
         .title("Test invoice")
         .page_with(PageSize::A4, |page| {
@@ -65,7 +86,35 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                         text(format!("Päiväys:   {}", format_date(&finvoice.payment.identification.date))),
                         text(format!("Eräpäivä:   {}", format_date(&finvoice.payment.instruction.due_date))),
                         text(format!("Summa:   {}", finvoice.invoice.total)),
-                    ]),
+                        text("\n"),
+                        text("\n"),
+                        text("Kuvaus                          Määrä      Yksikkö    Y-Hinta     ALV %      ALV €      Yhteensä").style(Style {
+                            font_size: Some(16.0),
+                            ..Style::default()
+                        }),
+                        text("\n"),
+                    ])
+                        .children(rows)
+
+                        .children([
+                            text("\n"),
+                            text("\n"),
+                            text(format!("Veroton summa: {}", finvoice.invoice.vat_excluded)).style(Style {
+                                font_size: Some(14.0),
+                                padding_bottom: Some(20.0),
+                                ..Style::default()
+                            }),
+                            text(format!("Arvonlisävero: {}", finvoice.invoice.vat)).style(Style {
+                                font_size: Some(14.0),
+                                padding_bottom: Some(20.0),
+                                ..Style::default()
+                            }),
+                            text(format!("Loppusumma: {}", finvoice.invoice.total)).style(Style {
+                                font_size: Some(14.0),
+                                padding_bottom: Some(20.0),
+                                ..Style::default()
+                            }),
+                        ])
             )
         })
         .build();
