@@ -17,26 +17,28 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         }
     }
 
-    let rows: Vec<_> = finvoice
-        .rows
-        .iter()
-        .map(|row| {
-            text(format!(
-                "{:<18}             {:<12}        {:<12}       {:<12}      {:<8}       {:<12}    {:<12}",
-                row.name,          
-                row.quantity.value,
-                row.quantity.unit,     
-                row.unit_price,       
-                row.vat_rate,      
-                row.vat_amount,    
-                row.amount         
-            )).style(Style {
-                font_size: Some(12.0),
-                padding_bottom: Some(25.0),
-                ..Style::default()
-            })
-        })
-        .collect();
+    let row1 = text(format!("{:<30}       {:<20} {:<18} {:<18} {:<16} {:<18} {:<18}",
+        finvoice.rows[0].name,
+        finvoice.rows[0].quantity.value,
+        finvoice.rows[0].quantity.unit,
+        finvoice.rows[0].unit_price,
+        finvoice.rows[0].vat_rate,
+        finvoice.rows[0].vat_amount,
+        finvoice.rows[0].amount
+    )).style(Style {
+        padding_bottom: Some(17.0),
+        ..Style::default()
+    });
+
+    let row2 = text(format!("{:<30}           {:<20}  {:<18} {:<18} {:<16} {:<18} {:<18}",
+        finvoice.rows[1].name,
+        finvoice.rows[1].quantity.value,
+        finvoice.rows[1].quantity.unit,
+        finvoice.rows[1].unit_price,
+        finvoice.rows[1].vat_rate,
+        finvoice.rows[1].vat_amount,
+        finvoice.rows[1].amount
+    ));
 
     let doc = document()
         .title("Test invoice")
@@ -53,7 +55,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                             ..Style::default()
                         }),
                         text("\n"),
-                        text(format!("Myyjä:")).style(Style {
+                        text(format!("Myyjä")).style(Style {
                             font_size: Some(16.0),
                             ..Style::default()
                         }),
@@ -74,7 +76,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                         finvoice.buyer.address.townname,
                         finvoice.buyer.address.country)),
                         text("\n"),
-                        text("Maksutiedot:").style(Style {
+                        text("Maksutiedot").style(Style {
                             font_size: Some(16.0),
                             ..Style::default()
                         }),
@@ -85,8 +87,6 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                         text(format!("Viitenumero:   {}", finvoice.payment.identification.reference)),
                         text(format!("Päiväys:   {}", format_date(&finvoice.payment.identification.date))),
                         text(format!("Eräpäivä:   {}", format_date(&finvoice.payment.instruction.due_date))),
-                        text(format!("Summa:   {}", finvoice.invoice.total)),
-                        text("\n"),
                         text("\n"),
                         text("Kuvaus                          Määrä      Yksikkö    Y-Hinta     ALV %      ALV €      Yhteensä").style(Style {
                             font_size: Some(16.0),
@@ -94,7 +94,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                         }),
                         text("\n"),
                     ])
-                        .children(rows)
+                        .children([row1, row2,])
 
                         .children([
                             text("\n"),
