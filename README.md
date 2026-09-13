@@ -51,7 +51,7 @@ samassa kohdassa PDF-tiedostossa.
 Tässä olisi ehkä myös ollut toimivaa, jos olisi tehnyt jonkulaisen grid systeemin, 
 jotta rivien tiedot pysyvät vertikaalisesti kohdillaan
 
-### PDF:n layout ja `view`-rakenteet
+### PDF:n layout ja `view`-rakenteet, flexpdf kirjasto
 
 PDF rakennetaan `flexpdf`-kirjaston avulla. `view()` toimii säiliönä, jonka
 sisälle lisätään tekstiä tai muita näkymiä `children([...])`-kutsulla.
@@ -71,6 +71,8 @@ Pääview
 Yläosan `FlexDirection::Row` asettaa myyjä- ja ostajatiedot sekä maksutiedot
 vaakasuunnassa vierekkäin. Muissa näkymissä sisältö asetellaan oletuksena
 ylhäältä alaspäin.
+
+Lyhyen tutustumisen jälkeen flexpdf kirjasto näytti kivalta ja helpolta joten päädyin siihen PDF-tiedoston generoimista varten.
 
 ### Tyylit ja välistykset
 
@@ -114,7 +116,15 @@ Esimerkiksi `Finvoice` sisältää seuraavat kokonaisuudet:
 - `rows`: laskurivit
 - `payment`: maksutiedot
 
-Kun XML on muunnettu 
+Kun XML-tiedoston tiedot on tallennettu tämän convert filen avulla rustin tietorakenteisiin niin sitä voidaan helposti käyttää main filessä näyttämään nämä tiedot PDF-tiedostossa
+
+
+# Virheiden käsittely
+
+Ohjelma käyttää Rustin Result tyyppiä ja ? operaattoria virheiden välittämiseen. Jos XML-tiedostoa ei voida lukea niin ohjelma lopetetaan ja virhe ilmoitetaan käyttäjälle. Ohjelmassa on kuitenkin riskejä, esim. jos XML-tiedostossa on vähemmän kuin kaksi laskuriviä niin ohjelma kaatuu, koska ohjelma on hard koodattu siihen tilanteeseen että laskurivejä on 2.
+
+Tämä laskurivien hard koodaus on kylläkin vain sen takia että sain PDF tiedostossa laskurivien tiedot vertikaalisesti kohdilleen ja tämä oli helpoin tehdä kyseisellä tavalla mutta laskurivit voisi myös tehdä ilman tätä hard koodausta.
+
 ## Ohjelman suorittaminen
 
 Ohjelma suoritetaan cargo run komennolla.
@@ -124,9 +134,5 @@ cargo run
 ```
 
 Tuloksena syntyy tiedosto `lasku.pdf`.
-
-
-
-
 
 
