@@ -3,6 +3,7 @@ mod convert;
 use convert::Finvoice;
 use flexpdf::builder::{document, text, view};
 use flexpdf::{render_document, PageSize, Style};
+use flexpdf::style::FlexDirection;
 use chrono::NaiveDate;
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
@@ -47,58 +48,95 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                 view()
                     .style(Style {
                         padding: Some(32.0),
+                        gap: Some(40.0),
                         ..Style::default()
                     })
                     .children([
-                        text("LASKU").style(Style {
-                            font_size: Some(22.0),
+                        view().children([
+                            text("LASKU").style(Style {
+                                font_size: Some(22.0),
+                                ..Style::default()
+                            }),
+                        ]).style(Style {
+                            padding_bottom: Some(20.0),
                             ..Style::default()
                         }),
-                        text("\n"),
-                        text(format!("Myyjä")).style(Style {
-                            font_size: Some(16.0),
+                        view()
+                            .style(Style {
+                                flex_direction: Some(FlexDirection::Row),
+                                ..Style::default()
+                            })
+                            .children([
+                                view().style(Style {
+                                    padding_bottom: Some(20.0),
+                                    gap: Some(3.0),
+                                    ..Style::default()
+                                }).children([
+                                    text(format!("Myyjä")).style(Style {
+                                        font_size: Some(16.0),
+                                        ..Style::default()
+                                    }),
+                                    text(format!("{}", finvoice.seller.name)),
+                                    text(format!("{}", finvoice.seller.address.streetname)),
+                                    text(format!("{}  {}  {}", finvoice.seller.address.postcode,
+                                    finvoice.seller.address.townname, 
+                                    finvoice.seller.address.country)),
+                                    text(format!("Y-tunnus: {}", finvoice.seller.identifier)),
+                                    text("\n"),
+                                    text(format!("Ostaja")).style(Style {
+                                        font_size: Some(16.0),
+                                        ..Style::default() 
+                                    }),
+                                    text(format!("{}", finvoice.buyer.name)),
+                                    text(format!("{}", finvoice.buyer.address.streetname)),
+                                    text(format!("{}  {}  {}", finvoice.buyer.address.postcode,
+                                    finvoice.buyer.address.townname,
+                                    finvoice.buyer.address.country)),
+                                ]),
+                                view()
+                                    .style(Style {
+                                        flex_grow: Some(1.0),
+                                        padding_left: Some(200.0),
+                                        gap: Some(3.0),
+                                        ..Style::default()
+                                    })
+                                    .children([
+                                        text("Maksutiedot").style(Style {
+                                            font_size: Some(16.0),
+                                            ..Style::default()
+                                        }),
+                                        text(format!("{}", finvoice.seller.name)),
+                                        text(format!("IBAN:   {}", finvoice.sellerinfo.account.account_id)),
+                                        text(format!("BIC:   {}", finvoice.sellerinfo.account.bic)),
+                                        text(format!("Laskunumero:   {}", finvoice.invoice.number)),
+                                        text(format!("Viitenumero:   {}", finvoice.payment.identification.reference)),
+                                        text(format!("Päiväys:   {}", format_date(&finvoice.payment.identification.date))),
+                                        text(format!("Eräpäivä:   {}", format_date(&finvoice.payment.instruction.due_date))),
+                                    ]),
+                            ]),
+                        view().children([
+                            view().style(Style {
+                                gap: Some(12.0),
+                                ..Style::default()
+                            }).children([
+                                text("Kuvaus                          Määrä      Yksikkö    Y-Hinta     ALV %      ALV €      Yhteensä").style(Style {
+                                    font_size: Some(16.0),
+                                    ..Style::default()
+                                }),
+                                text("\n"),
+                            ]),
+                            view().style(Style {
+                                gap: Some(12.0),
+                                ..Style::default()
+                            }).children([
+                                row1,
+                                row2,
+                            ]),
+                        ]),
+                        view().style(Style {
+                            padding_top: Some(24.0),
                             ..Style::default()
-                        }),
-                        text(format!("{}", finvoice.seller.name)),
-                        text(format!("{}", finvoice.seller.address.streetname)),
-                        text(format!("{}  {}  {}", finvoice.seller.address.postcode,
-                        finvoice.seller.address.townname, 
-                        finvoice.seller.address.country)),
-                        text(format!("Y-tunnus: {}", finvoice.seller.identifier)),
-                        text("\n"),
-                        text(format!("Ostaja")).style(Style {
-                            font_size: Some(16.0),
-                            ..Style::default() 
-                        }),
-                        text(format!("{}", finvoice.buyer.name)),
-                        text(format!("{}", finvoice.buyer.address.streetname)),
-                        text(format!("{}  {}  {}", finvoice.buyer.address.postcode,
-                        finvoice.buyer.address.townname,
-                        finvoice.buyer.address.country)),
-                        text("\n"),
-                        text("Maksutiedot").style(Style {
-                            font_size: Some(16.0),
-                            ..Style::default()
-                        }),
-                        text(format!("{}", finvoice.seller.name)),
-                        text(format!("IBAN:   {}", finvoice.sellerinfo.account.account_id)),
-                        text(format!("BIC:   {}", finvoice.sellerinfo.account.bic)),
-                        text(format!("laskunumero:   {}", finvoice.invoice.number)),
-                        text(format!("Viitenumero:   {}", finvoice.payment.identification.reference)),
-                        text(format!("Päiväys:   {}", format_date(&finvoice.payment.identification.date))),
-                        text(format!("Eräpäivä:   {}", format_date(&finvoice.payment.instruction.due_date))),
-                        text("\n"),
-                        text("Kuvaus                          Määrä      Yksikkö    Y-Hinta     ALV %      ALV €      Yhteensä").style(Style {
-                            font_size: Some(16.0),
-                            ..Style::default()
-                        }),
-                        text("\n"),
-                    ])
-                        .children([row1, row2,])
-
-                        .children([
-                            text("\n"),
-                            text("\n"),
+                        }).children([
                             text(format!("Veroton summa: {}", finvoice.invoice.vat_excluded)).style(Style {
                                 font_size: Some(14.0),
                                 padding_bottom: Some(20.0),
@@ -114,14 +152,15 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                                 padding_bottom: Some(20.0),
                                 ..Style::default()
                             }),
-                        ])
+                        ]),
+                    ])
             )
         })
         .build();
 
     let pdf = render_document(&doc)?;
 
-    std::fs::write("test.pdf", pdf)?;
+    std::fs::write("lasku.pdf", pdf)?;
 
     Ok(())
 }
